@@ -392,57 +392,86 @@ function setPhase(n) {
   });
 }
 
-// API — OpenRouter (OpenAI-compatible, supports CORS)
-async function callModel(modelId, sys, user) {
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'Authorization':`Bearer ${OR_KEY}`,
-      'HTTP-Referer':'https://llm-council.github.io',
-      'X-Title':'LLM Council'
+// API — OpenRouter with timeout + retry fallback chain
+const TIMEOUT_MS = 45000; // 45 seconds per call
+
+async function fetchWithTimeout(url, options, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timer);
+    return res;
+  } catch(e) {
+    clearTimeout(timer);
+    if (e.name === 'AbortError') throw new Error('Request timed out');
+    throw e;
+  }
+}
+
+async function callOR(modelId, sys, user, maxTokens = 600) {
+  const res = await fetchWithTimeout(
+    'https://openrouter.ai/api/v1/chat/completions',
+    {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':`Bearer ${OR_KEY}`,
+        'HTTP-Referer':'https://llm-council.github.io',
+        'X-Title':'LLM Council'
+      },
+      body: JSON.stringify({
+        model: modelId,
+        max_tokens: maxTokens,
+        messages:[{role:'system',content:sys},{role:'user',content:user}]
+      })
     },
-    body:JSON.stringify({
-      model: modelId,
-      max_tokens: 700,
-      messages:[
-        {role:'system', content:sys},
-        {role:'user',   content:user}
-      ]
-    })
-  });
+    TIMEOUT_MS
+  );
   if (!res.ok) {
     const e = await res.json().catch(()=>({}));
-    const msg = e?.error?.message || `HTTP ${res.status}`;
-    // Fallback: if model unavailable, try free router
-    if (res.status === 404 || res.status === 503) {
-      return callModelFallback(sys, user);
-    }
-    throw new Error(msg);
+    throw new Error(e?.error?.message || `HTTP ${res.status}`);
   }
   const d = await res.json();
   return d.choices?.[0]?.message?.content || '(no response)';
 }
 
-// Fallback to generic free router if specific model is down
-async function callModelFallback(sys, user) {
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'Authorization':`Bearer ${OR_KEY}`,
-      'HTTP-Referer':'https://llm-council.github.io',
-      'X-Title':'LLM Council'
-    },
-    body:JSON.stringify({
-      model:'openrouter/free',
-      max_tokens:700,
-      messages:[{role:'system',content:sys},{role:'user',content:user}]
-    })
-  });
-  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e?.error?.message||`HTTP ${res.status}`); }
-  const d = await res.json();
-  return d.choices?.[0]?.message?.content || '(no response)';
+// Try model → if fails/times out → try fallback chain
+async function callModel(modelId, sys, user) {
+  try {
+    return await callOR(modelId, sys, user, 550);
+  } catch(e) {
+    console.warn(`${modelId} failed (${e.message}), trying fallback…`);
+    // Fallback chain: fast reliable free models
+    const fallbacks = [
+      'meta-llama/llama-4-maverick:free',
+      'deepseek/deepseek-chat-v3-0324:free',
+      'mistralai/mistral-small-3.1-24b-instruct:free',
+    ].filter(f => f !== modelId);
+    for (const fb of fallbacks) {
+      try { return await callOR(fb, sys, user, 550); } catch(_) {}
+    }
+    throw new Error(`All models failed for this call`);
+  }
+}
+
+// Verdict uses fast models with full fallback chain
+async function callVerdict(sys, user) {
+  const verdictModels = [
+    'meta-llama/llama-4-maverick:free',        // fast, reliable
+    'deepseek/deepseek-chat-v3-0324:free',      // fast, reliable
+    'mistralai/mistral-small-3.1-24b-instruct:free',
+    'google/gemma-3-27b-it:free',
+    'google/gemini-2.5-pro-exp-03-25:free',     // slowest — last resort
+  ];
+  for (const model of verdictModels) {
+    try {
+      return await callOR(model, sys, user, 700);
+    } catch(e) {
+      console.warn(`Verdict model ${model} failed: ${e.message}`);
+    }
+  }
+  throw new Error('All verdict models failed — please try again');
 }
 
 // CONVENE
@@ -556,11 +585,11 @@ async function run(question) {
 
     let vText;
     try {
-      // Use the best available free model for synthesis
-      vText = await callModel('google/gemini-2.5-pro-exp-03-25:free',
+      vText = await callVerdict(
         'You are the Council Recorder. Write a definitive, authoritative final verdict synthesizing five AI perspectives. Be conclusive and clear.',
-        vPrompt);
-    } catch(e) { vText = `⚠️ Verdict error: ${e.message}`; }
+        vPrompt
+      );
+    } catch(e) { vText = `⚠️ Verdict error: ${e.message} — try refreshing and running again.`; }
     vt.remove();
     proc.appendChild(makeVdCard(vText,winner)); sb();
     setPhase(4);
