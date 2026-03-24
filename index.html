@@ -32,48 +32,26 @@
 body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 80% 35% at 50% 0%,rgba(201,168,76,0.05) 0%,transparent 70%);}
 
-/* SETUP OVERLAY */
-#setupOverlay{
-  position:fixed;inset:0;z-index:999;
-  background:rgba(5,7,10,0.96);
-  display:flex;align-items:center;justify-content:center;padding:20px;
-}
-.setup-card{
-  background:var(--surface);border:1px solid var(--b2);
-  border-radius:20px;padding:36px 30px;
-  width:100%;max-width:460px;
-  display:flex;flex-direction:column;gap:20px;
-  position:relative;overflow:hidden;
-}
-.setup-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
-.setup-seal{font-size:2rem;text-align:center;filter:drop-shadow(0 0 16px rgba(201,168,76,0.5));}
-.setup-title{font-family:'Cinzel',serif;font-size:1.2rem;font-weight:900;text-align:center;color:var(--gold2);letter-spacing:0.1em;}
-.setup-sub{font-size:0.82rem;color:var(--muted);text-align:center;line-height:1.55;}
-.setup-field{display:flex;flex-direction:column;gap:7px;}
-.setup-label{font-family:'Cinzel',serif;font-size:0.62rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px;}
-.setup-input-wrap{position:relative;}
-.setup-input{
-  width:100%;background:var(--s2);border:1px solid var(--border);
-  border-radius:10px;padding:11px 40px 11px 13px;
-  color:var(--text);font-family:'Crimson Pro',serif;font-size:0.95rem;
-  outline:none;transition:border-color 0.2s;
-}
-.setup-input:focus{border-color:var(--gold);}
-.setup-input::placeholder{color:var(--muted);font-style:italic;}
-.vis-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.95rem;}
-.setup-note{background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.2);border-radius:9px;padding:11px 14px;font-size:0.75rem;color:var(--gold);line-height:1.55;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .setup-note a{color:var(--gold2);text-decoration:underline;}
-.setup-security{background:var(--s2);border-radius:8px;padding:9px 13px;font-size:0.72rem;color:var(--muted);line-height:1.5;}
-.btn-enter{
-  background:linear-gradient(135deg,#7a5a0e,var(--gold),#b89028);
-  border:none;border-radius:11px;padding:13px;width:100%;
-  font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;
-  letter-spacing:0.14em;text-transform:uppercase;color:#000;
-  cursor:pointer;transition:all 0.2s;box-shadow:0 3px 16px rgba(201,168,76,0.2);
-}
-.btn-enter:hover{transform:translateY(-2px);box-shadow:0 5px 24px rgba(201,168,76,0.35);}
-.free-badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
-.fb{font-size:0.62rem;font-family:'Cinzel',serif;font-weight:700;letter-spacing:0.07em;padding:3px 9px;border-radius:20px;border:1px solid;}
+
+
+
+
+
 
 /* HEADER */
 .hero{position:relative;z-index:1;text-align:center;padding:40px 20px 24px;border-bottom:1px solid var(--border);}
@@ -219,40 +197,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 </head>
 <body>
 
-<!-- SETUP OVERLAY -->
-<div id="setupOverlay">
-  <div class="setup-card">
-    <div class="setup-seal">⚖️</div>
-    <div class="setup-title">LLM Council</div>
-    <p class="setup-sub">One free API key. Five real AI models. Zero cost.</p>
-
-    <div class="free-badges">
-      <span class="fb" style="color:var(--llama);border-color:rgba(0,200,150,0.3);background:rgba(0,200,150,0.08)">Llama 4</span>
-      <span class="fb" style="color:var(--gemma);border-color:rgba(224,123,84,0.3);background:rgba(224,123,84,0.08)">Gemma 3</span>
-      <span class="fb" style="color:var(--mistral);border-color:rgba(176,106,255,0.3);background:rgba(176,106,255,0.08)">Mistral</span>
-      <span class="fb" style="color:var(--deepseek);border-color:rgba(74,158,255,0.3);background:rgba(74,158,255,0.08)">DeepSeek</span>
-      <span class="fb" style="color:var(--gemini);border-color:rgba(255,185,48,0.3);background:rgba(255,185,48,0.08)">Gemini 2.5</span>
-    </div>
-
-    <div class="setup-field">
-      <div class="setup-label">🔑 OpenRouter API Key</div>
-      <div class="setup-input-wrap">
-        <input class="setup-input" type="password" id="orKey" placeholder="sk-or-v1-...">
-        <button class="vis-btn" onclick="toggleVis()">👁</button>
-      </div>
-    </div>
-
-    <div class="setup-note">
-      Get your free key at <a href="https://openrouter.ai" target="_blank">openrouter.ai</a> — no credit card needed.<br>
-      Free tier: 50 requests/day · 20 requests/minute.
-    </div>
-
-    <div class="setup-security">🔒 Key stored in memory only. Cleared on page refresh. Never sent anywhere except OpenRouter.</div>
-
-    <button class="btn-enter" onclick="saveKey()">Enter the Council →</button>
-  </div>
-</div>
-
 <!-- HERO -->
 <div class="hero">
   <div class="hero-seal">⚖️</div>
@@ -277,7 +221,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
     <div class="p-actions">
       <button class="btn-cv" id="conveneBtn" onclick="convene()">⚖️ Convene the Council</button>
       <button class="btn-rst" onclick="resetAll()">↺ Reset</button>
-      <button class="btn-keys" onclick="showSetup()">🔑 Key</button>
       <span class="p-note">Ctrl+Enter to convene</span>
     </div>
   </div>
@@ -343,7 +286,7 @@ const PHASES = [
 
 let isRunning = false;
 let totals = {};
-let OR_KEY = '';
+let OR_KEY = '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';
 
 // INIT
 document.addEventListener('DOMContentLoaded', () => {
@@ -353,21 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// KEY MANAGEMENT
-function toggleVis() {
-  const inp = document.getElementById('orKey');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
-}
-function saveKey() {
-  const k = document.getElementById('orKey').value.trim();
-  if (!k) { alert('Please enter your OpenRouter API key.'); return; }
-  OR_KEY = k;
-  document.getElementById('setupOverlay').style.display = 'none';
-}
-function showSetup() {
-  document.getElementById('orKey').value = OR_KEY;
-  document.getElementById('setupOverlay').style.display = 'flex';
-}
+
 
 // RENDER
 function renderSeats() {
