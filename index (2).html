@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Council — Free</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+
+:root {
+  --bg:      #05070a;
+  --surface: #0b0e14;
+  --s2:      #111620;
+  --s3:      #16202e;
+  --border:  #1c2535;
+  --b2:      #243040;
+  --text:    #d8dfe8;
+  --muted:   #4a5870;
+  --dim:     #2a3548;
+  --llama:   #00c896;
+  --gemma:   #e07b54;
+  --mistral: #b06aff;
+  --deepseek:#4a9eff;
+  --gemini:  #ffb930;
+  --gold:    #c9a84c;
+  --gold2:   #f0d080;
+  --success: #10b981;
+  --danger:  #ef4444;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 80% 35% at 50% 0%,rgba(201,168,76,0.05) 0%,transparent 70%);}
+
+/* SETUP OVERLAY */
+#setupOverlay{
+  position:fixed;inset:0;z-index:999;
+  background:rgba(5,7,10,0.96);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.setup-card{
+  background:var(--surface);border:1px solid var(--b2);
+  border-radius:20px;padding:36px 30px;
+  width:100%;max-width:460px;
+  display:flex;flex-direction:column;gap:20px;
+  position:relative;overflow:hidden;
+}
+.setup-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.setup-seal{font-size:2rem;text-align:center;filter:drop-shadow(0 0 16px rgba(201,168,76,0.5));}
+.setup-title{font-family:'Cinzel',serif;font-size:1.2rem;font-weight:900;text-align:center;color:var(--gold2);letter-spacing:0.1em;}
+.setup-sub{font-size:0.82rem;color:var(--muted);text-align:center;line-height:1.55;}
+.setup-field{display:flex;flex-direction:column;gap:7px;}
+.setup-label{font-family:'Cinzel',serif;font-size:0.62rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px;}
+.setup-input-wrap{position:relative;}
+.setup-input{
+  width:100%;background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;padding:11px 40px 11px 13px;
+  color:var(--text);font-family:'Crimson Pro',serif;font-size:0.95rem;
+  outline:none;transition:border-color 0.2s;
+}
+.setup-input:focus{border-color:var(--gold);}
+.setup-input::placeholder{color:var(--muted);font-style:italic;}
+.vis-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.95rem;}
+.setup-note{background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.2);border-radius:9px;padding:11px 14px;font-size:0.75rem;color:var(--gold);line-height:1.55;}
+.setup-note a{color:var(--gold2);text-decoration:underline;}
+.setup-security{background:var(--s2);border-radius:8px;padding:9px 13px;font-size:0.72rem;color:var(--muted);line-height:1.5;}
+.btn-enter{
+  background:linear-gradient(135deg,#7a5a0e,var(--gold),#b89028);
+  border:none;border-radius:11px;padding:13px;width:100%;
+  font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;color:#000;
+  cursor:pointer;transition:all 0.2s;box-shadow:0 3px 16px rgba(201,168,76,0.2);
+}
+.btn-enter:hover{transform:translateY(-2px);box-shadow:0 5px 24px rgba(201,168,76,0.35);}
+.free-badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
+.fb{font-size:0.62rem;font-family:'Cinzel',serif;font-weight:700;letter-spacing:0.07em;padding:3px 9px;border-radius:20px;border:1px solid;}
+
+/* HEADER */
+.hero{position:relative;z-index:1;text-align:center;padding:40px 20px 24px;border-bottom:1px solid var(--border);}
+.hero-seal{font-size:2.3rem;margin-bottom:8px;filter:drop-shadow(0 0 20px rgba(201,168,76,0.45));}
+.hero h1{font-family:'Cinzel',serif;font-size:clamp(1.4rem,5vw,2.4rem);font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold2);text-shadow:0 0 30px rgba(201,168,76,0.2);margin-bottom:5px;}
+.hero-sub{font-family:'Cinzel',serif;font-size:0.68rem;color:var(--muted);letter-spacing:0.22em;text-transform:uppercase;}
+.hero-rule{width:160px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:12px auto 0;}
+.free-tag{display:inline-flex;align-items:center;gap:5px;margin-top:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);border-radius:20px;padding:4px 12px;font-family:'Cinzel',serif;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;color:var(--success);}
+
+/* COUNCIL BAR */
+.council-bar{position:relative;z-index:1;display:flex;justify-content:center;padding:14px 12px 0;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto;gap:0;}
+.seat{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px 12px;border-bottom:2px solid transparent;transition:border-color 0.25s;min-width:76px;}
+.seat.done{border-bottom-color:var(--gold);}
+.s-av{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.82rem;font-weight:900;border:1px solid;flex-shrink:0;}
+.s-name{font-family:'Cinzel',serif;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.s-role{font-size:0.56rem;color:var(--dim);font-style:italic;}
+.s-pts{font-family:'Cinzel',serif;font-size:0.66rem;font-weight:700;color:var(--gold);min-height:12px;}
+
+/* PHASE BAR */
+.phase-bar{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;padding:0 12px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
+.ph{display:flex;align-items:center;gap:6px;padding:8px 12px;font-family:'Cinzel',serif;font-size:0.56rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;transition:color 0.3s;}
+.ph.done{color:var(--gold);}
+.ph.active{color:var(--gold2);}
+.ph .n{width:17px;height:17px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.56rem;border:1px solid var(--b2);background:var(--s2);transition:all 0.3s;}
+.ph.done .n{background:var(--gold);color:#000;border-color:var(--gold);}
+.ph.active .n{background:var(--gold2);color:#000;border-color:var(--gold2);box-shadow:0 0 10px rgba(240,208,128,0.3);}
+.ph-arr{color:var(--b2);font-size:0.7rem;}
+
+/* STAGE */
+.stage{position:relative;z-index:1;max-width:1020px;margin:0 auto;padding:28px 16px 130px;display:flex;flex-direction:column;gap:24px;}
+
+/* PROMPT */
+.prompt-card{background:var(--surface);border:1px solid var(--b2);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;}
+.prompt-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.p-label{font-family:'Cinzel',serif;font-size:0.6rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);}
+.p-input{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Crimson Pro',serif;font-size:1rem;outline:none;resize:none;min-height:66px;max-height:140px;transition:border-color 0.2s;line-height:1.55;width:100%;}
+.p-input:focus{border-color:var(--gold);}
+.p-input::placeholder{color:var(--muted);font-style:italic;}
+.p-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.btn-cv{background:linear-gradient(135deg,#7a5a0e,var(--gold),#b89028);border:none;border-radius:10px;padding:11px 24px;font-family:'Cinzel',serif;font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#000;cursor:pointer;transition:all 0.2s;box-shadow:0 3px 14px rgba(201,168,76,0.18);}
+.btn-cv:hover{transform:translateY(-2px);box-shadow:0 5px 22px rgba(201,168,76,0.3);}
+.btn-cv:disabled{opacity:0.38;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-rst{background:none;border:1px solid var(--b2);border-radius:10px;padding:11px 14px;font-family:'Cinzel',serif;font-size:0.63rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.btn-rst:hover{border-color:var(--muted);color:var(--text);}
+.btn-keys{background:none;border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'Cinzel',serif;font-size:0.6rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.btn-keys:hover{border-color:var(--gold);color:var(--gold);}
+.p-note{font-size:0.74rem;color:var(--muted);font-style:italic;margin-left:auto;}
+
+/* PHASE HEADER */
+.ph-hdr{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--b2);border-radius:11px;margin-bottom:-8px;}
+.ph-hdr-icon{font-size:1.1rem;}
+.ph-hdr-title{font-family:'Cinzel',serif;font-size:0.73rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold2);}
+.ph-hdr-desc{font-size:0.76rem;color:var(--muted);font-style:italic;margin-left:auto;}
+
+/* Q BANNER */
+.q-banner{background:var(--surface);border:1px solid var(--b2);border-radius:13px;padding:16px 20px;position:relative;overflow:hidden;}
+.q-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.q-label{font-family:'Cinzel',serif;font-size:0.57rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.q-text{font-family:'Crimson Pro',serif;font-size:1rem;line-height:1.55;font-style:italic;}
+
+/* GRIDS */
+.s-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;}
+
+/* MEMBER CARD */
+.mc{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:15px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;animation:fadeUp 0.4s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.mc.llama::before{background:var(--llama);}
+.mc.gemma::before{background:var(--gemma);}
+.mc.mistral::before{background:var(--mistral);}
+.mc.deepseek::before{background:var(--deepseek);}
+.mc.gemini::before{background:var(--gemini);}
+.mc-hdr{display:flex;align-items:center;gap:8px;}
+.mc-av{width:29px;height:29px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.76rem;font-weight:900;border:1px solid;}
+.mc-nm{font-family:'Cinzel',serif;font-size:0.69rem;font-weight:700;letter-spacing:0.04em;}
+.mc-rl{font-size:0.62rem;color:var(--muted);font-style:italic;}
+.mc-tag{font-family:'Cinzel',serif;font-size:0.53rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;background:var(--s2);border:1px solid var(--b2);padding:2px 7px;border-radius:20px;color:var(--muted);white-space:nowrap;margin-left:auto;}
+.mc-body{font-size:0.87rem;line-height:1.68;font-family:'Crimson Pro',serif;}
+.mc-model{font-size:0.6rem;color:var(--dim);font-family:'Cinzel',serif;letter-spacing:0.06em;margin-top:4px;display:flex;align-items:center;gap:4px;}
+.mc-model::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--success);}
+
+/* CHALLENGE */
+.ch-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid;border-radius:13px;padding:15px;display:flex;flex-direction:column;gap:8px;animation:fadeUp 0.4s ease both;}
+.ch-hdr{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.ch-arr{font-size:0.68rem;color:var(--muted);background:var(--s2);padding:2px 7px;border-radius:20px;font-family:'Cinzel',serif;letter-spacing:0.05em;}
+.ch-body{font-size:0.86rem;line-height:1.68;padding-left:38px;}
+
+/* SCORING */
+.sc-wrap{background:var(--surface);border:1px solid var(--b2);border-radius:14px;overflow:hidden;animation:fadeUp 0.4s ease both;}
+.sc-tbl{width:100%;border-collapse:collapse;}
+.sc-tbl th{font-family:'Cinzel',serif;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:10px 12px;text-align:left;background:var(--s2);border-bottom:1px solid var(--border);}
+.sc-tbl td{padding:9px 12px;font-size:0.82rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+.sc-tbl tr:last-child td{border-bottom:none;}
+.sc-num{font-family:'Cinzel',serif;font-weight:700;font-size:0.88rem;text-align:center;}
+.sc-bar{height:3px;border-radius:2px;background:var(--border);overflow:hidden;margin-top:2px;}
+.sc-fill{height:100%;border-radius:2px;}
+.sc-cmt{font-size:0.7rem;color:var(--muted);font-style:italic;line-height:1.3;margin-top:2px;}
+.sc-tot{font-family:'Cinzel',serif;font-size:0.92rem;font-weight:900;text-align:center;}
+.tr-tot td{background:var(--s2);}
+
+/* VERDICT */
+.vd-card{background:linear-gradient(135deg,rgba(201,168,76,0.05),rgba(16,185,129,0.04));border:1px solid rgba(201,168,76,0.22);border-radius:17px;padding:24px;display:flex;flex-direction:column;gap:15px;position:relative;overflow:hidden;animation:fadeUp 0.5s ease both;}
+.vd-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--llama),var(--gemma),var(--mistral),var(--deepseek),var(--gemini));}
+.vd-hdr{display:flex;align-items:flex-start;gap:12px;}
+.vd-seal{font-size:1.7rem;filter:drop-shadow(0 0 10px rgba(201,168,76,0.4));flex-shrink:0;}
+.vd-title{font-family:'Cinzel',serif;font-size:0.58rem;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.vd-winner{font-family:'Cinzel',serif;font-size:0.95rem;font-weight:700;color:var(--gold2);}
+.vd-body{font-size:0.92rem;line-height:1.75;font-family:'Crimson Pro',serif;}
+.vd-pills{display:flex;gap:7px;flex-wrap:wrap;}
+.vd-pill{display:flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:5px 9px;}
+.vp-av{width:19px;height:19px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.6rem;font-weight:900;border:1px solid;}
+.vp-nm{font-family:'Cinzel',serif;font-size:0.6rem;font-weight:700;letter-spacing:0.04em;}
+.vp-sc{font-family:'Cinzel',serif;font-size:0.7rem;font-weight:900;}
+
+/* THINKING */
+.th-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;}
+.th-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:14px;display:flex;flex-direction:column;gap:8px;}
+.th-row{display:flex;align-items:center;gap:8px;}
+.th-lbl{font-size:0.79rem;color:var(--muted);font-style:italic;}
+.dots span{display:inline-block;width:5px;height:5px;border-radius:50%;animation:blink 1.3s ease-in-out infinite;}
+.dots span:nth-child(1){background:var(--gold);}
+.dots span:nth-child(2){background:var(--gold2);animation-delay:0.22s;}
+.dots span:nth-child(3){background:var(--gold);animation-delay:0.44s;}
+@keyframes blink{0%,80%,100%{opacity:0.18;transform:scale(0.8)}40%{opacity:1;transform:scale(1.2)}}
+.sy-th{display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--muted);font-style:italic;padding:5px 2px;}
+
+/* ERROR */
+.err-card{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:11px;padding:13px 16px;font-size:0.86rem;color:#f87171;line-height:1.5;}
+
+/* INPUT BAR */
+.ib-fixed{position:fixed;bottom:0;left:0;right:0;z-index:50;background:var(--surface);border-top:1px solid var(--b2);padding:12px 16px;}
+.ib-inner{max-width:1020px;margin:0 auto;display:flex;gap:10px;align-items:flex-end;}
+.ib-inner textarea{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:11px 14px;color:var(--text);font-family:'Crimson Pro',serif;font-size:0.93rem;outline:none;resize:none;min-height:46px;max-height:120px;transition:border-color 0.2s;line-height:1.5;}
+.ib-inner textarea:focus{border-color:var(--gold);}
+.ib-inner textarea::placeholder{color:var(--muted);font-style:italic;}
+.ib-btn{height:46px;padding:0 18px;flex-shrink:0;background:linear-gradient(135deg,#7a5a0e,var(--gold));border:none;border-radius:12px;color:#000;font-family:'Cinzel',serif;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.ib-btn:hover{opacity:0.88;transform:translateY(-1px);}
+.ib-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
+
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- SETUP OVERLAY -->
+<div id="setupOverlay">
+  <div class="setup-card">
+    <div class="setup-seal">⚖️</div>
+    <div class="setup-title">LLM Council</div>
+    <p class="setup-sub">One free API key. Five real AI models. Zero cost.</p>
+
+    <div class="free-badges">
+      <span class="fb" style="color:var(--llama);border-color:rgba(0,200,150,0.3);background:rgba(0,200,150,0.08)">Llama 4</span>
+      <span class="fb" style="color:var(--gemma);border-color:rgba(224,123,84,0.3);background:rgba(224,123,84,0.08)">Gemma 3</span>
+      <span class="fb" style="color:var(--mistral);border-color:rgba(176,106,255,0.3);background:rgba(176,106,255,0.08)">Mistral</span>
+      <span class="fb" style="color:var(--deepseek);border-color:rgba(74,158,255,0.3);background:rgba(74,158,255,0.08)">DeepSeek</span>
+      <span class="fb" style="color:var(--gemini);border-color:rgba(255,185,48,0.3);background:rgba(255,185,48,0.08)">Gemini 2.5</span>
+    </div>
+
+    <div class="setup-field">
+      <div class="setup-label">🔑 OpenRouter API Key</div>
+      <div class="setup-input-wrap">
+        <input class="setup-input" type="password" id="orKey" placeholder="sk-or-v1-...">
+        <button class="vis-btn" onclick="toggleVis()">👁</button>
+      </div>
+    </div>
+
+    <div class="setup-note">
+      Get your free key at <a href="https://openrouter.ai" target="_blank">openrouter.ai</a> — no credit card needed.<br>
+      Free tier: 50 requests/day · 20 requests/minute.
+    </div>
+
+    <div class="setup-security">🔒 Key stored in memory only. Cleared on page refresh. Never sent anywhere except OpenRouter.</div>
+
+    <button class="btn-enter" onclick="saveKey()">Enter the Council →</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-seal">⚖️</div>
+  <h1>The LLM Council</h1>
+  <div class="hero-sub">Five Real AIs · One Verdict</div>
+  <div class="hero-rule"></div>
+  <div class="free-tag">✅ 100% Free — Powered by OpenRouter</div>
+</div>
+
+<!-- SEATS -->
+<div class="council-bar" id="councilBar"></div>
+
+<!-- PHASES -->
+<div class="phase-bar" id="phaseBar"></div>
+
+<!-- STAGE -->
+<div class="stage" id="stage">
+  <div class="prompt-card" id="promptCard">
+    <div class="p-label">⚖️ Present Your Case to the Council</div>
+    <textarea class="p-input" id="promptInput" rows="3"
+      placeholder="State the matter… e.g. 'Should Lebanon dollarize its economy?' or 'What is the best database for a startup in 2026?'"></textarea>
+    <div class="p-actions">
+      <button class="btn-cv" id="conveneBtn" onclick="convene()">⚖️ Convene the Council</button>
+      <button class="btn-rst" onclick="resetAll()">↺ Reset</button>
+      <button class="btn-keys" onclick="showSetup()">🔑 Key</button>
+      <span class="p-note">Ctrl+Enter to convene</span>
+    </div>
+  </div>
+  <div id="proceedings"></div>
+</div>
+
+<!-- FIXED INPUT BAR -->
+<div class="ib-fixed" id="ibFixed" style="display:none">
+  <div class="ib-inner">
+    <textarea id="quickInput" rows="1" placeholder="New matter for the council…"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();quickConvene()}"
+      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+    <button class="ib-btn" id="quickBtn" onclick="quickConvene()">Convene</button>
+  </div>
+</div>
+
+<script>
+// ── COUNCIL — real free models via OpenRouter ─────────────────────────────
+const MEMBERS = [
+  {
+    id:'llama', name:'Llama 4', short:'Llama', role:'The Analyst',
+    model:'meta-llama/llama-4-maverick:free',
+    color:'var(--llama)', bg:'rgba(0,200,150,0.1)', bc:'rgba(0,200,150,0.28)', logo:'L',
+    sys:`You are Llama 4 Maverick by Meta AI, serving as THE ANALYST on the LLM Council.
+Style: Rigorous, structured, data-driven. Lead with a clear thesis. Use numbered points. Confident and direct.`
+  },
+  {
+    id:'gemma', name:'Gemma 3', short:'Gemma', role:'The Philosopher',
+    model:'google/gemma-3-27b-it:free',
+    color:'var(--gemma)', bg:'rgba(224,123,84,0.1)', bc:'rgba(224,123,84,0.28)', logo:'G',
+    sys:`You are Gemma 3 27B by Google DeepMind, serving as THE PHILOSOPHER on the LLM Council.
+Style: Thoughtful, nuanced, explores ethical dimensions. Use flowing prose. Acknowledge complexity and second-order effects.`
+  },
+  {
+    id:'mistral', name:'Mistral', short:'Mistral', role:"Devil's Advocate",
+    model:'mistralai/mistral-small-3.1-24b-instruct:free',
+    color:'var(--mistral)', bg:'rgba(176,106,255,0.1)', bc:'rgba(176,106,255,0.28)', logo:'M',
+    sys:`You are Mistral Small 3.1 by Mistral AI, serving as THE DEVIL'S ADVOCATE on the LLM Council.
+Style: Sharp, challenging. Find flaws in every argument. Ask hard questions. Point out hidden risks. You do not need a positive conclusion — rigorous critique is your job.`
+  },
+  {
+    id:'deepseek', name:'DeepSeek', short:'DeepSeek', role:'The Researcher',
+    model:'deepseek/deepseek-chat-v3-0324:free',
+    color:'var(--deepseek)', bg:'rgba(74,158,255,0.1)', bc:'rgba(74,158,255,0.28)', logo:'D',
+    sys:`You are DeepSeek V3 by DeepSeek AI, serving as THE RESEARCHER on the LLM Council.
+Style: Broad, cross-domain, connects trends and data. Cite relevant examples and patterns. Thorough and well-organized.`
+  },
+  {
+    id:'gemini', name:'Gemini 2.5', short:'Gemini', role:'The Pragmatist',
+    model:'google/gemini-2.5-pro-exp-03-25:free',
+    color:'var(--gemini)', bg:'rgba(255,185,48,0.1)', bc:'rgba(255,185,48,0.28)', logo:'✦',
+    sys:`You are Gemini 2.5 Pro by Google DeepMind, serving as THE PRAGMATIST on the LLM Council.
+Style: Grounded, practical, execution-focused. Ask: how does this work in the real world? Focus on implementation, cost, timelines, and practical constraints.`
+  }
+];
+
+const PHASES = [
+  {label:'Opening Statements',icon:'📋'},
+  {label:'Cross-Examination', icon:'⚔️'},
+  {label:'Scoring Round',     icon:'🗳️'},
+  {label:'Verdict',           icon:'⚖️'},
+];
+
+let isRunning = false;
+let totals = {};
+let OR_KEY = '';
+
+// INIT
+document.addEventListener('DOMContentLoaded', () => {
+  renderSeats(); renderPhases();
+  document.getElementById('promptInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); convene(); }
+  });
+});
+
+// KEY MANAGEMENT
+function toggleVis() {
+  const inp = document.getElementById('orKey');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+function saveKey() {
+  const k = document.getElementById('orKey').value.trim();
+  if (!k) { alert('Please enter your OpenRouter API key.'); return; }
+  OR_KEY = k;
+  document.getElementById('setupOverlay').style.display = 'none';
+}
+function showSetup() {
+  document.getElementById('orKey').value = OR_KEY;
+  document.getElementById('setupOverlay').style.display = 'flex';
+}
+
+// RENDER
+function renderSeats() {
+  document.getElementById('councilBar').innerHTML = MEMBERS.map(m => `
+    <div class="seat" id="seat-${m.id}">
+      <div class="s-av" style="background:${m.bg};border-color:${m.bc};color:${m.color}">${m.logo}</div>
+      <div class="s-name">${m.short}</div>
+      <div class="s-role">${m.role}</div>
+      <div class="s-pts" id="pts-${m.id}"></div>
+    </div>`).join('');
+}
+function renderPhases() {
+  document.getElementById('phaseBar').innerHTML = PHASES.map((p,i) => `
+    ${i>0?'<span class="ph-arr">›</span>':''}
+    <div class="ph" id="ph-${i}"><div class="n">${i+1}</div>${p.icon} ${p.label}</div>
+  `).join('');
+}
+function setPhase(n) {
+  PHASES.forEach((_,i) => {
+    const el = document.getElementById(`ph-${i}`);
+    if (el) el.className = 'ph'+(i<n?' done':i===n?' active':'');
+  });
+}
+
+// API — OpenRouter (OpenAI-compatible, supports CORS)
+async function callModel(modelId, sys, user) {
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':`Bearer ${OR_KEY}`,
+      'HTTP-Referer':'https://llm-council.github.io',
+      'X-Title':'LLM Council'
+    },
+    body:JSON.stringify({
+      model: modelId,
+      max_tokens: 700,
+      messages:[
+        {role:'system', content:sys},
+        {role:'user',   content:user}
+      ]
+    })
+  });
+  if (!res.ok) {
+    const e = await res.json().catch(()=>({}));
+    const msg = e?.error?.message || `HTTP ${res.status}`;
+    // Fallback: if model unavailable, try free router
+    if (res.status === 404 || res.status === 503) {
+      return callModelFallback(sys, user);
+    }
+    throw new Error(msg);
+  }
+  const d = await res.json();
+  return d.choices?.[0]?.message?.content || '(no response)';
+}
+
+// Fallback to generic free router if specific model is down
+async function callModelFallback(sys, user) {
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':`Bearer ${OR_KEY}`,
+      'HTTP-Referer':'https://llm-council.github.io',
+      'X-Title':'LLM Council'
+    },
+    body:JSON.stringify({
+      model:'openrouter/free',
+      max_tokens:700,
+      messages:[{role:'system',content:sys},{role:'user',content:user}]
+    })
+  });
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e?.error?.message||`HTTP ${res.status}`); }
+  const d = await res.json();
+  return d.choices?.[0]?.message?.content || '(no response)';
+}
+
+// CONVENE
+async function convene() {
+  const q = document.getElementById('promptInput').value.trim();
+  if (!q || isRunning) return;
+  await run(q);
+}
+async function quickConvene() {
+  const q = document.getElementById('quickInput').value.trim();
+  if (!q || isRunning) return;
+  document.getElementById('quickInput').value = '';
+  document.getElementById('quickInput').style.height = 'auto';
+  await run(q);
+}
+
+async function run(question) {
+  isRunning = true;
+  totals = {}; MEMBERS.forEach(m => { totals[m.id] = 0; });
+  document.getElementById('conveneBtn').disabled = true;
+  document.getElementById('promptCard').style.display = 'none';
+  document.getElementById('ibFixed').style.display = 'block';
+  document.getElementById('quickBtn').disabled = true;
+
+  const proc = document.getElementById('proceedings');
+  proc.innerHTML = '';
+
+  // Question banner
+  const qb = mkEl('div','q-banner');
+  qb.innerHTML = `<div class="q-label">Matter Before the Council</div><div class="q-text">"${esc(question)}"</div>`;
+  proc.appendChild(qb);
+
+  try {
+    // ── PHASE 1: OPENING STATEMENTS ──
+    setPhase(0);
+    addPhHdr(proc,'📋','Opening Statements','Each member presents their position');
+
+    const tg = addThinkAll(proc);
+    const r1 = await Promise.allSettled(MEMBERS.map(m => callModel(m.model, m.sys, question)));
+    tg.remove();
+
+    const grid = mkEl('div','s-grid');
+    const stmts = {};
+    r1.forEach((r,i) => {
+      const m = MEMBERS[i];
+      const text = r.status==='fulfilled' ? r.value : `⚠️ ${r.reason?.message}`;
+      stmts[m.id] = text;
+      grid.appendChild(makeMCard(m, text, 'Opening'));
+    });
+    proc.appendChild(grid); sb();
+
+    // ── PHASE 2: CROSS-EXAMINATION ──
+    setPhase(1);
+    addPhHdr(proc,'⚔️','Cross-Examination','Each member challenges the next');
+
+    const ct = addSynthTh(proc,'Members reviewing each other\'s positions…');
+    const chP = MEMBERS.map((m,i) => {
+      const target = MEMBERS[(i+1)%MEMBERS.length];
+      const prompt = `The council matter: "${question}"\n\n${target.name} (${target.role}) stated:\n"${stmts[target.id]}"\n\nYou are ${m.name} (${m.role}). Challenge ${target.name}'s position directly. Find weaknesses, blind spots, or errors. Be specific. Max 3 paragraphs.`;
+      return callModel(m.model, m.sys, prompt).then(text=>({m,target,text}));
+    });
+    const chR = await Promise.allSettled(chP);
+    ct.remove();
+    chR.forEach(r => { if(r.status==='fulfilled'){proc.appendChild(makeChCard(r.value.m,r.value.target,r.value.text));sb();} });
+
+    // ── PHASE 3: SCORING ──
+    setPhase(2);
+    addPhHdr(proc,'🗳️','Scoring Round','Members score each other 1–10');
+
+    const st = addSynthTh(proc,'Members deliberating scores…');
+    const scP = MEMBERS.map(scorer => {
+      const others = MEMBERS.filter(m=>m.id!==scorer.id)
+        .map(m=>`**${m.name} (${m.role})**:\n${stmts[m.id]}`).join('\n\n---\n\n');
+      const prompt = `Council matter: "${question}"\n\nScore each other member's opening statement 1–10.\nCriteria: clarity+structure (3pts), correctness+depth (4pts), originality+insight (3pts).\n\n${others}\n\nRespond ONLY in this exact JSON (no markdown, no other text):\n{${MEMBERS.filter(m=>m.id!==scorer.id).map(m=>`"${m.id}":{"score":<1-10>,"comment":"<one sentence>"}`).join(',')}}`;
+      return callModel(scorer.model, scorer.sys, prompt).then(text=>({scorer,text}));
+    });
+    const scR = await Promise.allSettled(scP);
+    st.remove();
+
+    const allScores = {};
+    scR.forEach(r => {
+      if(r.status!=='fulfilled') return;
+      const {scorer,text} = r.value;
+      try {
+        const clean = text.replace(/```[\w]*\n?/g,'').replace(/```/g,'').trim();
+        const parsed = JSON.parse(clean);
+        allScores[scorer.id] = parsed;
+        Object.entries(parsed).forEach(([tid,d])=>{
+          totals[tid]=(totals[tid]||0)+(Number(d.score)||0);
+        });
+      } catch(_){}
+    });
+
+    proc.appendChild(makeScTable(allScores)); sb();
+    MEMBERS.forEach(m => {
+      const p = document.getElementById(`pts-${m.id}`);
+      if(p) p.textContent = totals[m.id]?`${totals[m.id]}pts`:'';
+      const s = document.getElementById(`seat-${m.id}`);
+      if(s) s.classList.add('done');
+    });
+
+    // ── PHASE 4: VERDICT ──
+    setPhase(3);
+    addPhHdr(proc,'⚖️','The Verdict','Council synthesizes the final answer');
+
+    const vt = addSynthTh(proc,'The council is reaching its verdict…');
+    const winner = MEMBERS.reduce((a,b)=>(totals[a.id]||0)>=(totals[b.id]||0)?a:b);
+    const allPos = MEMBERS.map(m=>`**${m.name} (${m.role})**:\n${stmts[m.id]}`).join('\n\n---\n\n');
+
+    const vPrompt = `The LLM Council debated: "${question}"\n\nAll five positions:\n${allPos}\n\nHighest scored: ${winner.name} (${winner.role})\n\nAs Council Recorder, write the definitive verdict:\n1. Integrate the strongest insights from all five\n2. Resolve key tensions honestly\n3. State a clear actionable conclusion\n4. Note important caveats or dissent\n\nWrite 3-4 authoritative paragraphs.`;
+
+    let vText;
+    try {
+      // Use the best available free model for synthesis
+      vText = await callModel('google/gemini-2.5-pro-exp-03-25:free',
+        'You are the Council Recorder. Write a definitive, authoritative final verdict synthesizing five AI perspectives. Be conclusive and clear.',
+        vPrompt);
+    } catch(e) { vText = `⚠️ Verdict error: ${e.message}`; }
+    vt.remove();
+    proc.appendChild(makeVdCard(vText,winner)); sb();
+    setPhase(4);
+
+  } catch(err) {
+    const e = mkEl('div','err-card');
+    e.textContent = '⚠️ ' + err.message;
+    proc.appendChild(e);
+  }
+
+  isRunning = false;
+  document.getElementById('conveneBtn').disabled = false;
+  document.getElementById('quickBtn').disabled = false;
+}
+
+// DOM BUILDERS
+function addPhHdr(c,icon,title,desc) {
+  const d=mkEl('div','ph-hdr');
+  d.innerHTML=`<span class="ph-hdr-icon">${icon}</span><span class="ph-hdr-title">${title}</span><span class="ph-hdr-desc">${desc}</span>`;
+  c.appendChild(d);
+}
+function addThinkAll(c) {
+  const g=mkEl('div','th-grid');
+  MEMBERS.forEach(m=>{
+    const card=mkEl('div','th-card');
+    card.innerHTML=`<div class="th-row"><div class="mc-av" style="width:28px;height:28px;border-radius:7px;background:${m.bg};border:1px solid ${m.bc};color:${m.color};display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.75rem;font-weight:900;flex-shrink:0;">${m.logo}</div><span class="th-lbl">${m.name} deliberating…</span></div><div class="dots"><span></span><span></span><span></span></div>`;
+    g.appendChild(card);
+  });
+  c.appendChild(g);sb();return g;
+}
+function addSynthTh(c,label) {
+  const d=mkEl('div','sy-th');
+  d.innerHTML=`<span>⚖️</span><span>${label}</span><div class="dots"><span></span><span></span><span></span></div>`;
+  c.appendChild(d);sb();return d;
+}
+function makeMCard(m,text,phase) {
+  const card=mkEl('div',`mc ${m.id}`);
+  card.innerHTML=`
+    <div class="mc-hdr">
+      <div class="mc-av" style="background:${m.bg};border-color:${m.bc};color:${m.color}">${m.logo}</div>
+      <div><div class="mc-nm" style="color:${m.color}">${m.name}</div><div class="mc-rl">${m.role}</div></div>
+      <span class="mc-tag">${phase}</span>
+    </div>
+    <div class="mc-body">${fmt(text)}</div>
+    <div class="mc-model">${m.model.replace(':free','')}</div>`;
+  return card;
+}
+function makeChCard(challenger,target,text) {
+  const card=mkEl('div','ch-card');
+  card.style.borderLeftColor=challenger.color;
+  card.innerHTML=`
+    <div class="ch-hdr">
+      <div style="width:27px;height:27px;border-radius:6px;background:${challenger.bg};border:1px solid ${challenger.bc};color:${challenger.color};display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.73rem;font-weight:900;flex-shrink:0;">${challenger.logo}</div>
+      <span class="mc-nm" style="color:${challenger.color}">${challenger.name}</span>
+      <span class="ch-arr">challenges →</span>
+      <div style="width:27px;height:27px;border-radius:6px;background:${target.bg};border:1px solid ${target.bc};color:${target.color};display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.73rem;font-weight:900;flex-shrink:0;">${target.logo}</div>
+      <span class="mc-nm" style="color:${target.color}">${target.name}</span>
+    </div>
+    <div class="ch-body">${fmt(text)}</div>`;
+  return card;
+}
+function makeScTable(allScores) {
+  const wrap=mkEl('div','sc-wrap');
+  const hdr=MEMBERS.map(m=>`<th style="color:${m.color}">${m.short}</th>`).join('');
+  const rows=MEMBERS.map(target=>{
+    const cells=MEMBERS.map(scorer=>{
+      if(scorer.id===target.id) return`<td style="color:var(--b2);text-align:center;font-size:1rem;">—</td>`;
+      const d=allScores[scorer.id]?.[target.id];
+      const sc=d?.score??'?'; const cm=d?.comment||'';
+      return`<td><div class="sc-num" style="color:${target.color}">${sc}</div><div class="sc-bar"><div class="sc-fill" style="width:${Math.min(100,(Number(sc)/10)*100)}%;background:${target.color}"></div></div><div class="sc-cmt">${esc(cm)}</div></td>`;
+    }).join('');
+    return`<tr><td><div style="display:flex;align-items:center;gap:7px;">
+      <div style="width:22px;height:22px;border-radius:5px;background:${target.bg};border:1px solid ${target.bc};display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.65rem;font-weight:900;color:${target.color};flex-shrink:0;">${target.logo}</div>
+      <div><div style="font-family:'Cinzel',serif;font-size:0.66rem;font-weight:700;color:${target.color}">${target.name}</div><div style="font-size:0.6rem;color:var(--muted);font-style:italic">${target.role}</div></div>
+    </div></td>${cells}<td class="sc-tot" style="color:${target.color}">${totals[target.id]||0}</td></tr>`;
+  }).join('');
+  wrap.innerHTML=`<table class="sc-tbl"><thead><tr><th>Member</th>${hdr}<th style="color:var(--gold)">Total</th></tr></thead><tbody>${rows}</tbody></table>`;
+  return wrap;
+}
+function makeVdCard(text,winner) {
+  const card=mkEl('div','vd-card');
+  const sorted=[...MEMBERS].sort((a,b)=>(totals[b.id]||0)-(totals[a.id]||0));
+  const pills=sorted.map(m=>`<div class="vd-pill"><div class="vp-av" style="background:${m.bg};border-color:${m.bc};color:${m.color}">${m.logo}</div><span class="vp-nm" style="color:${m.color}">${m.short}</span><span class="vp-sc" style="color:${m.color}">${totals[m.id]||0}</span></div>`).join('');
+  card.innerHTML=`
+    <div class="vd-hdr"><span class="vd-seal">⚖️</span><div><div class="vd-title">Council Verdict</div><div class="vd-winner">Highest Scored: <span style="color:${winner.color}">${winner.name}</span> — ${winner.role}</div></div></div>
+    <div class="vd-pills">${pills}</div>
+    <div class="vd-body">${fmt(text)}</div>`;
+  return card;
+}
+
+function resetAll() {
+  document.getElementById('proceedings').innerHTML='';
+  document.getElementById('promptCard').style.display='block';
+  document.getElementById('promptInput').value='';
+  document.getElementById('ibFixed').style.display='none';
+  MEMBERS.forEach(m=>{
+    const p=document.getElementById(`pts-${m.id}`);if(p)p.textContent='';
+    const s=document.getElementById(`seat-${m.id}`);if(s)s.classList.remove('done');
+  });
+  PHASES.forEach((_,i)=>{const e=document.getElementById(`ph-${i}`);if(e)e.className='ph';});
+  totals={};
+}
+
+function mkEl(tag,cls=''){const e=document.createElement(tag);if(cls)e.className=cls;return e;}
+function fmt(t){return esc(t).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>').replace(/^/,'<p>').replace(/$/,'</p>');}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function sb(){window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});}
+</script>
+</body>
+</html>
